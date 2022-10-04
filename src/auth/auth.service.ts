@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Users } from '../users/users.entity';
+import { User } from '../users/users.entity';
 import * as jwt from 'jsonwebtoken';
 import { ITokens, ITokenVerify } from '../interfaces/tokens.interface';
 import { AuthTokenEntity } from './auth-token.entity';
@@ -11,7 +11,7 @@ export class AuthService {
   @InjectRepository(AuthTokenEntity)
   private readonly repository: Repository<AuthTokenEntity>;
 
-  public async generateTokens(user: Users): Promise<ITokens> {
+  public async generateTokens(user: User): Promise<ITokens> {
     const accessToken = AuthService.generateAccessToken(user);
     const refreshToken = AuthService.generateRefreshToken(user);
     await this.addRefreshToken(refreshToken, user);
@@ -29,7 +29,7 @@ export class AuthService {
 
   private async addRefreshToken(
     token: string,
-    user: Users,
+    user: User,
   ): Promise<AuthTokenEntity> {
     const candidate = await this.repository.findOne({ where: { user: user } });
     if (!candidate) {
@@ -43,7 +43,7 @@ export class AuthService {
     return this.repository.save(candidate);
   }
 
-  private static generateAccessToken({ nickname, uid }: Users): string {
+  private static generateAccessToken({ nickname, uid }: User): string {
     return jwt.sign(
       { uid: uid, nickname: nickname },
       process.env.JWT_ACCESS_KEY,
@@ -53,7 +53,7 @@ export class AuthService {
     );
   }
 
-  private static generateRefreshToken({ nickname, uid }: Users): string {
+  private static generateRefreshToken({ nickname, uid }: User): string {
     return jwt.sign(
       { uid: uid, nickname: nickname },
       process.env.JWT_REFRESH_KEY,
@@ -85,7 +85,7 @@ export class AuthService {
     };
   }
 
-  public async findRefreshTokenByUser(user: Users) {
+  public async findRefreshTokenByUser(user: User): Promise<AuthTokenEntity> {
     return this.repository.findOne({ where: { user: user } });
   }
 

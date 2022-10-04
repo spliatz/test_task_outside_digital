@@ -1,8 +1,7 @@
-import { HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
+import {HttpStatus, Injectable, NestMiddleware} from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../auth/auth.service';
 import { UsersService } from 'src/users/users.service';
-import { AuthUserDto } from 'src/auth/dto/auth-user.dto';
 
 @Injectable()
 export class AuthLoginMiddleware implements NestMiddleware {
@@ -35,9 +34,8 @@ export class AuthLoginMiddleware implements NestMiddleware {
           .status(HttpStatus.UNAUTHORIZED)
           .json({ message: 'Некорректный токен' });
       }
-      const dto = new AuthUserDto();
-      dto.user = user;
-      req.body = dto;
+
+      req.body.user = user;
       next();
     } catch (e) {
       console.log('error');

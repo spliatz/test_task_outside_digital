@@ -15,7 +15,8 @@ import { AuthRefreshMiddleware } from '../middlewares/auth-refresh.middleware';
 @Module({
   imports: [UsersModule, TypeOrmModule.forFeature([AuthTokenEntity])],
   controllers: [AuthController],
-  providers: [AuthService, UsersModule],
+  providers: [AuthService],
+  exports: [AuthService]
 })
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {

@@ -28,7 +28,7 @@ export class AuthController {
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.CREATED)
   @Post('signup')
-  async signUn(@Body() body: CreateUserDto) {
+  async signUp(@Body() body: CreateUserDto) {
     let candidate = await this.userService.getUser(body);
     if (candidate) {
       throw new HttpException(
@@ -63,7 +63,7 @@ export class AuthController {
     const user = await this.userService.getUser(body);
     if (!user) {
       throw new HttpException(
-        { message: 'Неверный логин или пароль' },
+        { message: 'Неверный email или пароль' },
         HttpStatus.UNAUTHORIZED,
       );
     }
@@ -78,13 +78,12 @@ export class AuthController {
     try {
       const user = await this.userService.getUserByUid(body.uid);
       if (!user) {
-        throw new HttpException(
+        new HttpException(
           { message: 'Refresh error' },
           HttpStatus.UNAUTHORIZED,
         );
       }
-      const tokens = await this.authService.generateTokens(user);
-      return tokens;
+      return await this.authService.generateTokens(user);
     } catch (e) {
       throw new HttpException(
         { message: 'Refresh error' },
@@ -98,9 +97,11 @@ export class AuthController {
   @Delete('logout')
   async logout(@Body() body: AuthUserDto, @Response() res: httpResponse) {
     try {
-      const refreshTokenEntity = await this.authService.findRefreshTokenByUser(body.user);
-      const result = await this.authService.removeRefreshToken(refreshTokenEntity.id);
-      res.json({ok: true})
+      const refreshTokenEntity = await this.authService.findRefreshTokenByUser(
+        body.user,
+      );
+      await this.authService.removeRefreshToken(refreshTokenEntity.id);
+      res.json({ ok: true });
     } catch (e) {
       console.log(e);
       throw new HttpException(

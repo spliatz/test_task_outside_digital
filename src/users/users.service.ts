@@ -1,30 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Users } from './users.entity';
+import { User } from './users.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { AuthLoginDto } from '../auth/dto/auth-login.dto';
-import { AuthRefreshDto } from '../auth/dto/auth-refresh.dto';
+import { EditUserDto } from './dto/edit-user.dto';
 
 @Injectable()
 export class UsersService {
-  @InjectRepository(Users)
-  private readonly repository: Repository<Users>;
+  @InjectRepository(User)
+  private readonly repository: Repository<User>;
 
   public async createUser({
     email,
     password,
     nickname,
-  }: CreateUserDto): Promise<Users> {
-    const user = new Users();
+  }: CreateUserDto): Promise<User> {
+    const user = new User();
     user.email = email;
-    user.password = await bcrypt.hash(password, 10);
+    user.password = await UsersService.hashPassword(password);
     user.nickname = nickname;
     return this.repository.save(user);
   }
 
-  public async getUser({ email, password }: AuthLoginDto): Promise<Users> {
+  public async getUser({ email, password }: AuthLoginDto): Promise<User> {
     const user = await this.repository.findOne({
       where: {
         email: email,
@@ -44,15 +44,49 @@ export class UsersService {
     return user;
   }
 
-  public async getUserByUid(uid: string): Promise<Users> {
+  public async editUser(body: EditUserDto): Promise<User> {
+    if (body.nickname) {
+      // проверка на существование пользователя с таким же полем
+      const nickNameExist = await this.getUserByNickName(body.nickname);
+      if (nickNameExist) {
+        throw new Error('Пользователь с таким псевдонимом уже существует')
+      }
+
+      body.user.nickname = body.nickname;
+    }
+
+    if (body.email) {
+      // проверка на существование пользователя с таким же полем
+      const emailExist = await this.repository.findOne({
+        where: { email: body.email },
+      });
+      if (emailExist) {
+        throw new Error('Пользователь с такой почтой уже существует')
+      }
+
+      body.user.email = body.email;
+    }
+
+    if (body.password) {
+      body.user.password = await UsersService.hashPassword(body.password);
+    }
+
+    return this.repository.save(body.user);
+  }
+
+  public async getUserByUid(uid: string): Promise<User> {
     return this.repository.findOne({ where: { uid } });
   }
 
-  public async getUserByNickName(nickname): Promise<Users> {
+  public async getUserByNickName(nickname): Promise<User> {
     return this.repository.findOne({
       where: {
         nickname: nickname,
       },
     });
+  }
+
+  private static async hashPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, 10);
   }
 }
