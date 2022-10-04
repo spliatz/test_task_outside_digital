@@ -8,7 +8,8 @@ services:
     ports:
       - 8000:8000
     depends_on:
-      - db
+       db:
+         condition: service_healthy
     environment:
       - POSTGRES_LOCAL_PORT=5432
       - POSTGRES_HOST=db
@@ -17,12 +18,17 @@ services:
       - POSTGRES_PASSWORD=docker
       - JWT_ACCESS_KEY=qofdjeifhuhbjasjigudsfdsfsd
       - JWT_REFRESH_KEY=qo231edqwdjeidafdsfergegbeh
+    restart: 'no'
   db:
     restart: always
-    image: postgres:latest
+    image: postgres:alpine
     volumes:
       - ./.database/postgres/data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=docker
     ports:
       - 5436:5432
+    healthcheck:
+      test: "pg_isready --username=postgres && psql --username=postgres --list"
+      timeout: 10s
+      retries: 20
