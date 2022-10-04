@@ -12,7 +12,7 @@ export class AuthTokenEntity {
   @PrimaryGeneratedColumn({ type: 'integer' })
   id: number;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, (user) => user.uid, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_uid', referencedColumnName: 'uid' })
   user: User;
 

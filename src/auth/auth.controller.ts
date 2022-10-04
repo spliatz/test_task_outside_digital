@@ -103,7 +103,6 @@ export class AuthController {
       await this.authService.removeRefreshToken(refreshTokenEntity.id);
       res.json({ ok: true });
     } catch (e) {
-      console.log(e);
       throw new HttpException(
         { message: 'Logout error' },
         HttpStatus.FORBIDDEN,

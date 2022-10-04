@@ -48,7 +48,6 @@ export class AuthRefreshMiddleware implements NestMiddleware {
       req.body = dto;
       next();
     } catch (e) {
-      console.log('error');
       res
         .status(HttpStatus.UNAUTHORIZED)
         .json({ message: 'Невалидный refresh token' });

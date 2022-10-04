@@ -1,16 +1,13 @@
 import {
-  IsEmail, IsNotEmpty,
-  isNotEmpty,
-  isNotEmptyObject,
+  IsEmail,
+  IsNotEmpty,
   IsOptional,
   IsString,
   Length,
 } from 'class-validator';
-import { AuthUserDto } from '../../auth/dto/auth-user.dto';
-import {User} from "../users.entity";
+import { User } from '../users.entity';
 
 export class EditUserDto {
-
   @IsNotEmpty({ message: 'Невалидный пользователь' })
   user: User;
 

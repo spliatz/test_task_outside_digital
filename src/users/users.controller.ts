@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpException,
@@ -12,13 +13,13 @@ import {
 import { AuthUserDto } from '../auth/dto/auth-user.dto';
 import { UsersService } from './users.service';
 import { EditUserDto } from './dto/edit-user.dto';
+import { DeleteUserDto } from './dto/delete-user.dto';
 
 @Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
   @Get()
   getUser(@Body() body: AuthUserDto) {
-    console.log(body.user)
     return {
       email: body.user.email,
       nickname: body.user.nickname,
@@ -37,10 +38,18 @@ export class UsersController {
         nickname: response.nickname,
       };
     } catch (e) {
-      throw new HttpException(
-        { message: e.toString()},
-        HttpStatus.FORBIDDEN,
-      );
+      throw new HttpException({ message: e.toString() }, HttpStatus.FORBIDDEN);
+    }
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Delete()
+  async deleteUser(@Body() body: DeleteUserDto) {
+    try {
+      await this.usersService.deleteUser(body.user);
+      return { ok: true };
+    } catch (e) {
+      throw new HttpException({ message: e.toString() }, HttpStatus.FORBIDDEN);
     }
   }
 }

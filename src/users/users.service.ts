@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './users.entity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { AuthLoginDto } from '../auth/dto/auth-login.dto';
@@ -49,7 +49,7 @@ export class UsersService {
       // проверка на существование пользователя с таким же полем
       const nickNameExist = await this.getUserByNickName(body.nickname);
       if (nickNameExist) {
-        throw new Error('Пользователь с таким псевдонимом уже существует')
+        throw new Error('Пользователь с таким псевдонимом уже существует');
       }
 
       body.user.nickname = body.nickname;
@@ -61,7 +61,7 @@ export class UsersService {
         where: { email: body.email },
       });
       if (emailExist) {
-        throw new Error('Пользователь с такой почтой уже существует')
+        throw new Error('Пользователь с такой почтой уже существует');
       }
 
       body.user.email = body.email;
@@ -72,6 +72,10 @@ export class UsersService {
     }
 
     return this.repository.save(body.user);
+  }
+
+  public async deleteUser(user: User): Promise<DeleteResult> {
+    return this.repository.delete({ uid: user.uid });
   }
 
   public async getUserByUid(uid: string): Promise<User> {
