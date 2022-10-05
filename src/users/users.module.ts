@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './users.entity';
+import { User } from '../entities/users.entity';
 import { UsersController } from './users.controller';
 import { AuthLoginMiddleware } from '../middlewares/auth-login.middleware';
 import { AuthModule } from '../auth/auth.module';

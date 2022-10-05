@@ -5,7 +5,7 @@ import {
   IsString,
   Length,
 } from 'class-validator';
-import { User } from '../users.entity';
+import { User } from '../../entities/users.entity';
 
 export class EditUserDto {
   @IsNotEmpty({ message: 'Невалидный пользователь' })

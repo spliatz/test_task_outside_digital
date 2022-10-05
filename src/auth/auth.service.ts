@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '../users/users.entity';
+import { User } from '../entities/users.entity';
 import * as jwt from 'jsonwebtoken';
 import { ITokens, ITokenVerify } from '../interfaces/tokens.interface';
-import { AuthTokenEntity } from './auth-token.entity';
+import { AuthTokenEntity } from '../entities/auth-token.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 

@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './shared/typeorm/typeorm.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { TagsModule } from './tags/tags.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { UsersModule } from './users/users.module';
     }),
     TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
     UsersModule,
+    TagsModule,
     AuthModule,
   ],
 })

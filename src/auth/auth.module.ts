@@ -9,7 +9,7 @@ import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
 import { AuthLoginMiddleware } from '../middlewares/auth-login.middleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthTokenEntity } from './auth-token.entity';
+import { AuthTokenEntity } from '../entities/auth-token.entity';
 import { AuthRefreshMiddleware } from '../middlewares/auth-refresh.middleware';
 
 @Module({
