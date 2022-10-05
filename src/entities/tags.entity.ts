@@ -1,8 +1,10 @@
 import {
   Column,
   Entity,
-  JoinColumn, JoinTable, ManyToMany,
-  OneToOne,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from './users.entity';
@@ -18,11 +20,17 @@ export class Tag {
   @Column({ type: 'int', default: 0, nullable: false })
   sortOrder: number;
 
-  @OneToOne(() => User, user => user.uid)
+  @ManyToOne(() => User, (user) => user.uid, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'creator', referencedColumnName: 'uid' })
-  creator: string;
+  creator: Promise<User>;
 
-  @ManyToMany(() => User, user => user.uid)
-  @JoinTable({name: 'tags_users'})
-  users: User[]
+  @ManyToMany(() => User, (user) => user.uid, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinTable({ name: 'tags_users' })
+  users: Promise<User[]>;
 }

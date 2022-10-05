@@ -19,8 +19,15 @@ export class AuthLoginMiddleware implements NestMiddleware {
     }
 
     const token = headers[1];
+
+    if (!token || !token.length) {
+      res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ message: 'Некорректный токен' });
+    }
+
     const parts = token.split('.');
-    if (!token.length || parts.length !== 3) {
+    if (parts.length !== 3) {
       res
         .status(HttpStatus.UNAUTHORIZED)
         .json({ message: 'Некорректный токен' });
@@ -35,12 +42,20 @@ export class AuthLoginMiddleware implements NestMiddleware {
           .json({ message: 'Некорректный токен' });
       }
 
-      req.body.user = user;
+      const refreshToken = await this.authService.findRefreshTokenByUser(user)
+
+      if (!refreshToken) {
+        return res
+            .status(HttpStatus.UNAUTHORIZED)
+            .json({ message: 'Сессия недействительна' });
+      }
+
+      req.body.user = await refreshToken.user;
       next();
     } catch (e) {
       res
         .status(HttpStatus.UNAUTHORIZED)
-        .json({ message: 'Некорректный токен' });
+        .json({ message: 'Сессия недействительна' });
     }
   }
 }

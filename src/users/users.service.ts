@@ -6,6 +6,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { AuthLoginDto } from '../auth/dto/auth-login.dto';
 import { EditUserDto } from './dto/edit-user.dto';
+import {Tag} from "../entities/tags.entity";
 
 @Injectable()
 export class UsersService {
@@ -88,6 +89,10 @@ export class UsersService {
         nickname: nickname,
       },
     });
+  }
+
+  public async getUserAttachedTags(user: User) {
+    return user.tags;
   }
 
   private static async hashPassword(password: string): Promise<string> {

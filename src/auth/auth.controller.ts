@@ -76,14 +76,7 @@ export class AuthController {
   @Post('refresh')
   async refresh(@Body() body: AuthRefreshDto) {
     try {
-      const user = await this.userService.getUserByUid(body.uid);
-      if (!user) {
-        new HttpException(
-          { message: 'Refresh error' },
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
-      return await this.authService.generateTokens(user);
+      return await this.authService.generateTokens(body.user);
     } catch (e) {
       throw new HttpException(
         { message: 'Refresh error' },
@@ -97,10 +90,7 @@ export class AuthController {
   @Delete('logout')
   async logout(@Body() body: AuthUserDto, @Response() res: httpResponse) {
     try {
-      const refreshTokenEntity = await this.authService.findRefreshTokenByUser(
-        body.user,
-      );
-      await this.authService.removeRefreshToken(refreshTokenEntity.id);
+      await this.authService.removeRefreshToken(body.user);
       res.json({ ok: true });
     } catch (e) {
       throw new HttpException(

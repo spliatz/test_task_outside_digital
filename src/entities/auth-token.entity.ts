@@ -12,9 +12,12 @@ export class AuthTokenEntity {
   @PrimaryGeneratedColumn({ type: 'integer' })
   id: number;
 
-  @OneToOne(() => User, (user) => user.uid, { onDelete: 'CASCADE' })
+  @OneToOne(() => User, (user) => user.uid, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'user_uid', referencedColumnName: 'uid' })
-  user: User;
+  user: Promise<User>;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   refresh_token: string;

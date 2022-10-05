@@ -2,7 +2,8 @@ import { HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { UsersService } from 'src/users/users.service';
 import { AuthService } from '../auth/auth.service';
-import { AuthRefreshDto } from '../auth/dto/auth-refresh.dto';
+import {User} from "../entities/users.entity";
+import {AuthRefreshDto} from "../auth/dto/auth-refresh.dto";
 
 @Injectable()
 export class AuthRefreshMiddleware implements NestMiddleware {
@@ -21,8 +22,15 @@ export class AuthRefreshMiddleware implements NestMiddleware {
     }
 
     const token = headers[1];
+
+    if (!token || !token.length) {
+      res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ message: 'Некорректный токен' });
+    }
+
     const parts = token.split('.');
-    if (!token.length || parts.length !== 3) {
+    if (parts.length !== 3) {
       res
         .status(HttpStatus.UNAUTHORIZED)
         .json({ message: 'Некорректный токен' });
@@ -30,21 +38,16 @@ export class AuthRefreshMiddleware implements NestMiddleware {
 
     try {
       const verify = this.authService.parseRefreshToken(token);
-      const dto = new AuthRefreshDto();
-      dto.uid = verify.uid;
-      const user = await this.usersService.getUserByUid(dto.uid);
-      if (!user) {
+      const user = new User()
+      user.uid = verify.uid
+      const refreshToken = await this.authService.findRefreshTokenByUser(user);
+      if (!refreshToken || refreshToken.refresh_token !== token) {
         return res.status(HttpStatus.UNAUTHORIZED).json({
           message: 'Невалидный refresh token',
         });
       }
-
-      const isValidData = await this.authService.findRefreshTokenByUser(user);
-      if (!isValidData || isValidData.refresh_token !== token) {
-        return res.status(HttpStatus.UNAUTHORIZED).json({
-          message: 'Невалидный refresh token',
-        });
-      }
+      const dto = new AuthRefreshDto()
+      dto.user = await refreshToken.user
       req.body = dto;
       next();
     } catch (e) {

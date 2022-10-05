@@ -1,6 +1,7 @@
-import { IsString } from 'class-validator';
+import {IsNotEmpty} from 'class-validator';
+import {User} from "../../entities/users.entity";
 
 export class AuthRefreshDto {
-  @IsString({ message: 'ошибка идентификации пользователя' })
-  uid: string;
+  @IsNotEmpty({message: 'Некорректный пользователь'})
+  user: User
 }

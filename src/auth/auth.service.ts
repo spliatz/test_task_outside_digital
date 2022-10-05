@@ -31,11 +31,13 @@ export class AuthService {
     token: string,
     user: User,
   ): Promise<AuthTokenEntity> {
-    const candidate = await this.repository.findOne({ where: { user: user } });
+    const candidate = await this.repository.findOne({
+      where: { user: { uid: user.uid } },
+    });
     if (!candidate) {
       const refreshToken = new AuthTokenEntity();
       refreshToken.refresh_token = token;
-      refreshToken.user = user;
+      refreshToken.user = Promise.resolve(user);
       return this.repository.save(refreshToken);
     }
 
@@ -86,10 +88,10 @@ export class AuthService {
   }
 
   public async findRefreshTokenByUser(user: User): Promise<AuthTokenEntity> {
-    return this.repository.findOne({ where: { user: user } });
+    return this.repository.findOne({ where: { user: { uid: user.uid } } });
   }
 
-  public removeRefreshToken(id: number) {
-    return this.repository.delete(id);
+  public removeRefreshToken(user: User) {
+    return this.repository.delete({user: {uid: user.uid}});
   }
 }
